@@ -35,7 +35,11 @@ defmodule PrizeDraw.DrawContext do
       ** (Ecto.NoResultsError)
 
   """
-  def get_draw!(id), do: Repo.get!(Draw, id)
+  def get_draw!(id) do
+    Draw
+    |> preload(:entrants)
+    |> Repo.get!(id)
+  end
 
   @doc """
   Creates a draw.
@@ -117,10 +121,6 @@ defmodule PrizeDraw.DrawContext do
     Repo.all(User)
   end
 
-  def list_users_draw(draw_id) do
-    Repo.all(User, draw_id: draw_id)
-  end
-
   @doc """
   Gets a single user.
 
@@ -173,12 +173,6 @@ defmodule PrizeDraw.DrawContext do
     |> Repo.update()
   end
 
-  def assign_to_draw(%User{} = user, attrs) do
-    user
-    |> User.assign_to_draw_changesetset(attrs)
-    |> Repo.update()
-  end
-
   @doc """
   Deletes a user.
 
@@ -206,5 +200,108 @@ defmodule PrizeDraw.DrawContext do
   """
   def change_user(%User{} = user, attrs \\ %{}) do
     User.changeset(user, attrs)
+  end
+
+  alias PrizeDraw.DrawContext.Entrant
+
+  @doc """
+  Returns the list of entrants.
+
+  ## Examples
+
+      iex> list_entrants()
+      [%Entrant{}, ...]
+
+  """
+  def list_entrants do
+    Repo.all(Entrant)
+  end
+
+  def list_entrants_by_draw(draw_id) do
+    Entrant
+    |> where([u], u.draw_id == ^draw_id)
+    |> preload(:user)
+    |> Repo.all()
+  end
+
+  @doc """
+  Gets a single entrant.
+
+  Raises `Ecto.NoResultsError` if the Entrant does not exist.
+
+  ## Examples
+
+      iex> get_entrant!(123)
+      %Entrant{}
+
+      iex> get_entrant!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_entrant!(id), do: Repo.get!(Entrant, id)
+
+  @doc """
+  Creates a entrant.
+
+  ## Examples
+
+      iex> create_entrant(%{field: value})
+      {:ok, %Entrant{}}
+
+      iex> create_entrant(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_entrant(attrs \\ %{}) do
+    %Entrant{}
+    |> Entrant.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a entrant.
+
+  ## Examples
+
+      iex> update_entrant(entrant, %{field: new_value})
+      {:ok, %Entrant{}}
+
+      iex> update_entrant(entrant, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_entrant(%Entrant{} = entrant, attrs) do
+    entrant
+    |> Entrant.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a entrant.
+
+  ## Examples
+
+      iex> delete_entrant(entrant)
+      {:ok, %Entrant{}}
+
+      iex> delete_entrant(entrant)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_entrant(%Entrant{} = entrant) do
+    Repo.delete(entrant)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking entrant changes.
+
+  ## Examples
+
+      iex> change_entrant(entrant)
+      %Ecto.Changeset{data: %Entrant{}}
+
+  """
+  def change_entrant(%Entrant{} = entrant, attrs \\ %{}) do
+    Entrant.changeset(entrant, attrs)
   end
 end

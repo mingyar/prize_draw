@@ -36,4 +36,19 @@ defmodule PrizeDraw.DrawContextFixtures do
 
     user
   end
+
+  @doc """
+  Generate a entrant.
+  """
+  def entrant_fixture(attrs \\ %{}) do
+    {:ok, entrant} =
+      attrs
+      |> Enum.into(%{
+        ticket: "some ticket",
+        winner: true
+      })
+      |> PrizeDraw.DrawContext.create_entrant()
+
+    entrant
+  end
 end

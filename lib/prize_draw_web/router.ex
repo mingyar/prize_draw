@@ -10,10 +10,10 @@ defmodule PrizeDrawWeb.Router do
 
     resources "/user", UserController
 
-    post "/user/assign_to_draw", UserController, :assign_to_draw
-
     resources "/draw", DrawController
 
-    post "/draw/execute_draw/:id", DrawController, :execute_draw
+    resources "/entrant", EntrantController
+
+    get "/draw/:id/winner", DrawController, :winner
   end
 end

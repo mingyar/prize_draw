@@ -4,7 +4,7 @@ defmodule PrizeDraw.Repo.Migrations.CreateDraws do
   def change do
     create table(:draws) do
       add :name, :string
-      add :date, :date
+      add :date, :utc_datetime
 
       timestamps()
     end

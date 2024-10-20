@@ -33,36 +33,6 @@ defmodule PrizeDrawWeb.UserController do
     end
   end
 
-  def assign_to_draw(conn, %{"user" => %{"id" => id, "draw_id" => draw_id} = user_params}) do
-    user = DrawContext.get_user!(id)
-
-    case user.draw_id == nil or user.draw_id != draw_id do
-      true ->
-        draw = DrawContext.get_draw!(draw_id)
-
-        case Date.compare(draw.date, Date.utc_today()) do
-          :gt ->
-            with {:ok, %User{} = _user} <- DrawContext.assign_to_draw(user, user_params) do
-              conn
-              |> put_status(:ok)
-              |> text("")
-            end
-
-          :lt ->
-            conn
-            |> put_status(:bad_request)
-            |> put_view(PrizeDrawWeb.ErrorView)
-            |> render("not_allowed_after_date.json")
-        end
-
-      false ->
-        conn
-        |> put_status(:bad_request)
-        |> put_view(PrizeDrawWeb.ErrorView)
-        |> render("already_in_a_draw.json")
-    end
-  end
-
   def delete(conn, %{"id" => id}) do
     user = DrawContext.get_user!(id)
 

@@ -1,4 +1,5 @@
 defmodule PrizeDrawWeb.DrawController do
+  alias PrizeDraw.Jobs.ExecuteDraw
   use PrizeDrawWeb, :controller
 
   alias PrizeDraw.DrawContext
@@ -13,31 +14,14 @@ defmodule PrizeDrawWeb.DrawController do
 
   def create(conn, %{"draw" => draw_params}) do
     with {:ok, %Draw{} = draw} <- DrawContext.create_draw(draw_params) do
+      %{"draw_id" => draw.id}
+      |> ExecuteDraw.new(scheduled_at: draw.date)
+      |> Oban.insert()
+
       conn
       |> put_status(:created)
       |> put_resp_header("location", Routes.draw_path(conn, :show, draw))
       |> render("show.json", draw: draw)
-    end
-  end
-
-  def execute_draw(conn, %{"id" => id}) do
-    draw = DrawContext.get_draw!(id)
-
-    case Date.compare(draw.date, Date.utc_today()) do
-      :lt ->
-        conn
-        |> put_status(:bad_request)
-        |> put_view(PrizeDrawWeb.ErrorView)
-        |> render("not_allowed_after_date.json")
-
-      _ ->
-        winner =
-          DrawContext.list_users_draw(id)
-          |> Enum.random()
-
-        conn
-        |> put_status(:ok)
-        |> render("winner.json", user: winner)
     end
   end
 
@@ -60,5 +44,18 @@ defmodule PrizeDrawWeb.DrawController do
     with {:ok, %Draw{}} <- DrawContext.delete_draw(draw) do
       send_resp(conn, :no_content, "")
     end
+  end
+
+  def winner(conn, %{"id" => id}) do
+    winner =
+      id
+      |> DrawContext.get_draw!()
+      |> Map.get(:id)
+      |> DrawContext.list_entrants_by_draw()
+      |> Enum.filter(&(&1.winner == true))
+      |> hd()
+      |> Map.get(:user)
+
+    render(conn, "winner.json", user: winner)
   end
 end

@@ -12,7 +12,8 @@ defmodule PrizeDrawWeb.DrawView do
 
   def render("draw.json", %{draw: draw}) do
     %{
-      id: draw.id
+      id: draw.id,
+      date: draw.date
     }
   end
 

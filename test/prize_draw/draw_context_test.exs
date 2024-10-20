@@ -120,4 +120,60 @@ defmodule PrizeDraw.DrawContextTest do
       assert %Ecto.Changeset{} = DrawContext.change_user(user)
     end
   end
+
+  describe "entrants" do
+    alias PrizeDraw.DrawContext.Entrant
+
+    import PrizeDraw.DrawContextFixtures
+
+    @invalid_attrs %{ticket: nil, winner: nil}
+
+    test "list_entrants/0 returns all entrants" do
+      entrant = entrant_fixture()
+      assert DrawContext.list_entrants() == [entrant]
+    end
+
+    test "get_entrant!/1 returns the entrant with given id" do
+      entrant = entrant_fixture()
+      assert DrawContext.get_entrant!(entrant.id) == entrant
+    end
+
+    test "create_entrant/1 with valid data creates a entrant" do
+      valid_attrs = %{ticket: "some ticket", winner: true}
+
+      assert {:ok, %Entrant{} = entrant} = DrawContext.create_entrant(valid_attrs)
+      assert entrant.ticket == "some ticket"
+      assert entrant.winner == true
+    end
+
+    test "create_entrant/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = DrawContext.create_entrant(@invalid_attrs)
+    end
+
+    test "update_entrant/2 with valid data updates the entrant" do
+      entrant = entrant_fixture()
+      update_attrs = %{ticket: "some updated ticket", winner: false}
+
+      assert {:ok, %Entrant{} = entrant} = DrawContext.update_entrant(entrant, update_attrs)
+      assert entrant.ticket == "some updated ticket"
+      assert entrant.winner == false
+    end
+
+    test "update_entrant/2 with invalid data returns error changeset" do
+      entrant = entrant_fixture()
+      assert {:error, %Ecto.Changeset{}} = DrawContext.update_entrant(entrant, @invalid_attrs)
+      assert entrant == DrawContext.get_entrant!(entrant.id)
+    end
+
+    test "delete_entrant/1 deletes the entrant" do
+      entrant = entrant_fixture()
+      assert {:ok, %Entrant{}} = DrawContext.delete_entrant(entrant)
+      assert_raise Ecto.NoResultsError, fn -> DrawContext.get_entrant!(entrant.id) end
+    end
+
+    test "change_entrant/1 returns a entrant changeset" do
+      entrant = entrant_fixture()
+      assert %Ecto.Changeset{} = DrawContext.change_entrant(entrant)
+    end
+  end
 end

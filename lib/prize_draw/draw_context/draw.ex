@@ -3,8 +3,9 @@ defmodule PrizeDraw.DrawContext.Draw do
   import Ecto.Changeset
 
   schema "draws" do
-    field :date, :date
+    field :date, :utc_datetime
     field :name, :string
+    has_many :entrants, PrizeDraw.DrawContext.Entrant
 
     timestamps()
   end

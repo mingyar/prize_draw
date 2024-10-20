@@ -15,9 +15,10 @@ defmodule PrizeDraw.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: PrizeDraw.PubSub},
       # Start the Endpoint (http/https)
-      PrizeDrawWeb.Endpoint
+      PrizeDrawWeb.Endpoint,
       # Start a worker by calling: PrizeDraw.Worker.start_link(arg)
       # {PrizeDraw.Worker, arg}
+      {Oban, Application.fetch_env!(:oban, Oban)}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
